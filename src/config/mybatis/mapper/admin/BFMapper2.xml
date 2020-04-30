@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ischoolbar.programmer.dao.admin.BFDao">
+<resultMap type="com.ischoolbar.programmer.entity.admin.AssetVO"
+		id="AssetAndDor1">
+		<id column="assetid" property="assetid" jdbcType="INTEGER" />
+		<result column="bedchamberid" property="bedchamberid" jdbcType="INTEGER" />
+		<result column="createtime" property="createtime" jdbcType="DATE" />
+		<result column="categoryid" property="categoryid" jdbcType="INTEGER" />
+		<result column="repairstatus" property="repairstatus" jdbcType="INTEGER" />
+		<result column="scraptime" property="scraptime" jdbcType="DATE" />
+		<result column="scrapto" property="scrapto" jdbcType="VARCHAR" />
+		<result column="scrapreason" property="scrapreason" jdbcType="VARCHAR" />
+		<result column="registrationstatus" property="registrationstatus"
+			jdbcType="INTEGER" />
+		<result column="assetname" property="assetname" jdbcType="VARCHAR" />
+		<result column="uses" property="uses" jdbcType="VARCHAR" />
+		<result column="price" property="price" jdbcType="REAL" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- 查询功能 -->
+	<select id="findBFList" parameterType="Map" resultMap="AssetAndDor1">
+		<!-- select * from asset left join dormitory on asset.bedchamberid = dormitory.dormitoryId -->
+		select * from asset left join dormitory on asset.bedchamberid =
+		dormitory.dormitoryId left join student on asset.uses = student.id
+		<where>
+			<if test="bedchamberid!=null">
+				and bedchamberid =#{bedchamberid}
+			</if>
+		     <if test="true">
+		       and registrationstatus <![CDATA[ <= ]]> 0
+		     </if>
+		 </where>
+		<if test="offset != null and pageSize != null">
+			limit #{offset},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 获取符合结果的总记录数 -->
+	<select id="getBFTotal" parameterType="Map" resultType="Integer">
+		select count(*) from asset where 1 = 1
+		<if test="username != null">
+			and assetname like '%${assetname}%'
+		</if>
+		and registrationstatus <![CDATA[ <= ]]>  0
+	</select>
+</mapper>

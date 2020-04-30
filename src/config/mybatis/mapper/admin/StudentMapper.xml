@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ischoolbar.programmer.dao.admin.StudentDao">
+	<select id="findALL" parameterType="Map"
+		resultType="com.ischoolbar.programmer.entity.admin.StudentEntity">
+		select * from student
+		<where>
+		    <if test="dormitoryId!=null">
+				and dormitory_id =#{dormitoryId}
+			</if>
+			<if test="true">
+			    and dormitory_id is not null
+			</if>
+		</where>
+	</select>
+	
+	<resultMap type="com.ischoolbar.programmer.entity.admin.StudentEntity"
+		id="stu">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="class" property="class" jdbcType="VARCHAR" />
+		<result column="year" property="year" jdbcType="DATE" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="INTEGER" />
+		<result column="age" property="age" jdbcType="INTEGER" />
+		<result column="roleId" property="roleId" jdbcType="INTEGER" />
+		<result column="photo" property="photo" jdbcType="VARCHAR" />
+		<result column="dormitory_id" property="dormitoryId" jdbcType="INTEGER" />
+	</resultMap>
+	<!-- 根据id查找学生 -->
+	<select id="findByStudentname" parameterType="String"
+		resultMap="stu">
+		select * from student where id = #{id}
+	</select>
+	<!-- 删除学生 -->
+	<delete id="delete" parameterType="String">
+		delete from student where id
+		in(${value})
+	</delete>
+	<!-- 分页获取老师列表 {offset=0, roleId=2, sex=null, name=112, pageSize=20} -->
+	<!-- resultType="com.ischoolbar.programmer.entity.admin.StudentVO" -->
+	<resultMap type="com.ischoolbar.programmer.entity.admin.StudentVO"
+		id="stuAndDo">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="class" property="class" jdbcType="VARCHAR" />
+		<result column="year" property="year" jdbcType="DATE" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="INTEGER" />
+		<result column="age" property="age" jdbcType="INTEGER" />
+		<result column="roleId" property="roleId" jdbcType="INTEGER" />
+		<result column="photo" property="photo" jdbcType="VARCHAR" />
+		<result column="dormitory_id" property="dormitoryId" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="findList" parameterType="Map" resultMap="stuAndDo">
+		select * from student left join dormitory on student.dormitory_id
+		=dormitory.dormitoryId
+		<where>
+			<if test="username != null">
+				and username like '%${username}%'
+			</if>
+			<if test="roleId != null">
+				and roleId = #{roleId}
+			</if>
+			<if test="sex != null">
+				and sex = #{sex}
+			</if>
+		</where>
+		<if test="offset != null and pageSize != null">
+			limit #{offset},#{pageSize}
+		</if>
+	</select>
+	<!-- 获取符合结果的总记录数 -->
+	<select id="getTotal" parameterType="Map" resultType="Integer">
+		select count(*) from student where 1 = 1
+		<if test="username != null">
+			and username like '%${username}%'
+		</if>
+		<if test="roleId != null">
+			and roleId = #{roleId}
+		</if>
+		<if test="sex != null">
+			and sex = #{sex}
+		</if>
+	</select>
+	<!-- 添加学生 -->
+	<insert id="add"
+		parameterType="com.ischoolbar.programmer.entity.admin.StudentEntity">
+		insert into student
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="username != null">
+				username,
+			</if>
+			<if test="year != null">
+				year,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="sex != null">
+				sex,
+			</if>
+			<if test="age != null">
+				age,
+			</if>
+			<if test="roleId != null">
+				roleId,
+			</if>
+			<if test="photo != null">
+				photo,
+			</if>
+			<if test="dormitoryId != null">
+				dormitory_id,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="username != null">
+				#{username,jdbcType=VARCHAR},
+			</if>
+			<if test="year != null">
+				#{year,jdbcType=DATE},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				#{sex,jdbcType=INTEGER},
+			</if>
+			<if test="age != null">
+				#{age,jdbcType=INTEGER},
+			</if>
+			<if test="roleId != null">
+				#{roleId,jdbcType=INTEGER},
+			</if>
+			<if test="photo != null">
+				#{photo,jdbcType=VARCHAR},
+			</if>
+			<if test="dormitoryId != null">
+				#{dormitoryId,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+
+	<!-- 修改学生 -->
+	<!-- <update id="edit" parameterType="com.ischoolbar.programmer.entity.admin.TeacherEntity"> 
+		update student set username = #{username},photo = #{photo},sex = #{sex},age 
+		= #{age} where id = #{id} </update> -->
+	<update id="edit"
+		parameterType="com.ischoolbar.programmer.entity.admin.TeacherEntity">
+		<!-- update student set username = #{username},photo = #{photo},sex = #{sex},age 
+			= #{age} where id = #{id} -->
+		update student
+		<set>
+			<if test="id != null">
+				id = #{id,jdbcType=VARCHAR},
+			</if>
+			<if test="username != null">
+				username = #{username,jdbcType=VARCHAR},
+			</if>
+			<if test="year != null">
+				year = #{year,jdbcType=DATE},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				sex = #{sex,jdbcType=INTEGER},
+			</if>
+			<if test="age != null">
+				age = #{age,jdbcType=INTEGER},
+			</if>
+			<if test="roleId != null">
+				roleId = #{roleId,jdbcType=INTEGER},
+			</if>
+			<if test="photo != null">
+				photo = #{photo,jdbcType=VARCHAR},
+			</if>
+			<if test="dormitoryId != null">
+				dormitory_id = #{dormitoryId,jdbcType=INTEGER},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+</mapper>

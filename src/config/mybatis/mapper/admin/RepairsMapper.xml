@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ischoolbar.programmer.dao.admin.RepairsDao">
+	<insert id="add"
+		parameterType="com.ischoolbar.programmer.entity.admin.RepairsEntity">
+		insert into repairs
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="stuid != null">
+				stuid,
+			</if>
+			<if test="assetid != null">
+				assetid,
+			</if>
+			<if test="createtime != null">
+				createtime,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="brank != null">
+				brank,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="stuid != null">
+				#{stuid,jdbcType=VARCHAR},
+			</if>
+			<if test="assetid != null">
+				#{assetid,jdbcType=INTEGER},
+			</if>
+			<if test="createtime != null">
+				#{createtime,jdbcType=DATE},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="brank != null">
+				#{brank,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<resultMap type="com.ischoolbar.programmer.entity.admin.RepairsVO"
+		id="repairsAndStu">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="stuid" property="stuid" jdbcType="VARCHAR" />
+		<result column="assetid" property="assetid" jdbcType="INTEGER" />
+		<result column="createtime" property="createtime" jdbcType="DATE" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="brank" property="brank" jdbcType="VARCHAR" />
+		<!--学生名 -->
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<!-- 财产名 -->
+		<result column="assetname" property="assetname" jdbcType="VARCHAR" />
+		<!-- 宿舍名 -->
+		<result column="name" property="name" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="findList" parameterType="Map" resultMap="repairsAndStu">
+		select * from repairs left join student on repairs.stuid = student.id
+		left join dormitory on student.dormitory_id = dormitory.dormitoryId
+		left join asset on repairs.assetid = asset.assetid
+		<where>
+			<if test="stuid!=null">
+				and stuid =#{stuid}
+			</if>
+				<if test="bedchamberid!=null">
+				and bedchamberid =#{bedchamberid}
+			</if>
+		</where>
+		<if test="offset != null and pageSize != null">
+			limit #{offset},#{pageSize}
+		</if>
+	</select>
+
+	<!-- 获取符合结果的总记录数 -->
+	<select id="getTotal" parameterType="Map" resultType="Integer">
+		select
+		count(*) from repairs where 1 = 1
+	</select>
+	<delete id="delete" parameterType="String">
+		delete from repairs where
+		id
+		in
+		(${value})
+	</delete>
+	<update id="edit"
+		parameterType="com.ischoolbar.programmer.entity.admin.RepairsEntity">
+		update repairs
+		<set>
+			<if test="stuid != null">
+				stuid = #{stuid,jdbcType=VARCHAR},
+			</if>
+			<if test="assetid != null">
+				assetid = #{assetid,jdbcType=INTEGER},
+			</if>
+			<if test="createtime != null">
+				createtime = #{createtime,jdbcType=DATE},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="brank != null">
+				brank = #{brank,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+</mapper>

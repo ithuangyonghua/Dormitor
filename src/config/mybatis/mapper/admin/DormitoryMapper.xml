@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ischoolbar.programmer.dao.admin.DormitoryDao">
+     <!-- 获取宿舍楼信息 -->
+	<select id="findTopList" parameterType="Map" resultType="com.ischoolbar.programmer.entity.admin.DormitoryEntity">
+		 select * from dormitory 
+		
+	</select>
+	<select id="findALL"  parameterType="Map" 
+		resultType="com.ischoolbar.programmer.entity.admin.DormitoryEntity">
+		select * from dormitory 
+		 <where>
+		 <if test="teacherid!=null">
+		   and teacherId =#{teacherid}
+		 </if>
+		  <if test="dormitoryid!=null">
+		   and dormitoryId =#{dormitoryid}
+		 </if>
+		</where>
+	</select>
+	<update id="edit" parameterType="com.ischoolbar.programmer.entity.admin.DormitoryVO">
+		update dormitory set name = #{name},teacherId = #{teacherid} where dormitoryId = #{dormitoryid}
+	</update>
+	<delete id="delete" parameterType="String">
+		delete from dormitory where dormitoryId
+		in  (${value})
+	</delete>
+	<insert id="add" parameterType="com.ischoolbar.programmer.entity.admin.DormitoryVO">
+		insert into dormitory(dormitoryId,name,teacherId) values(null,#{name},#{teacherid})
+	</insert>
+	 <resultMap type="com.ischoolbar.programmer.entity.admin.DormitoryVO" id="dormitoryRoom">
+		    <id column="dormitoryId" property="dormitoryid" jdbcType="INTEGER" />
+		    <result column="name" property="name" jdbcType="VARCHAR" />
+		    <result column="address" property="address" jdbcType="VARCHAR" />
+		    <result column="teacherId" property="teacherid" jdbcType="INTEGER" />
+		    <result column="url" property="url" jdbcType="VARCHAR" />
+		    <result column="icon" property="icon" jdbcType="VARCHAR" />
+		     <result column="username" property="username" jdbcType="VARCHAR" />
+	  <!--   <collection property="listfoor" ofType="com.ischoolbar.programmer.entity.admin.FloorVO">
+		     <id column="floor_id" property="floorId" jdbcType="INTEGER" />
+		     <result column="floor_num" property="floorNum" jdbcType="INTEGER" />
+		     <result column="bedchamber_id" property="bedchamberId" jdbcType="INTEGER" />
+		       <collection property="Roomlist" ofType="com.ischoolbar.programmer.entity.admin.RoomVO">
+					    <id column="room_id" property="roomId" jdbcType="VARCHAR" />
+					    <result column="bedchamber_id" property="bedchamberId" jdbcType="INTEGER" />
+					    <result column="floor_id" property="floorId" jdbcType="INTEGER" />
+		       </collection>
+	    </collection> -->
+	    <!-- <result column="username" property="username" jdbcType="VARCHAR" /> -->
+	      <!-- <association property="teacherEntity" javaType="com.ischoolbar.programmer.entity.admin.TeacherEntity">
+                 <id column="id" property="id" jdbcType="VARCHAR" />
+			    <result column="username" property="username" jdbcType="VARCHAR" />
+			    <result column="password" property="passWord" jdbcType="VARCHAR" />
+			    <result column="sex" property="sex" jdbcType="INTEGER" />
+			    <result column="age" property="age" jdbcType="INTEGER" />
+			    <result column="address" property="address" jdbcType="VARCHAR" />
+			    <result column="roleId" property="roleId" jdbcType="INTEGER" />
+			    <result column="photo" property="photo" jdbcType="VARCHAR" />
+            </association> -->
+	</resultMap> 
+	<!-- 菜单信息模糊分页搜索查询 -->
+	<select id="findList" parameterType="Map" resultMap="dormitoryRoom">
+		<!-- select * from dormitory where 1 = 1  -->
+		<!-- select * from dormitory left join floor on dormitory.dormitoryId = floor.bedchamber_id
+		left join room on  floor.floor_id= room.floor_id  -->
+		select * from dormitory left join teacher on dormitory.teacherId = teacher.id
+		<where>
+			<if test="name != null">
+				and name like '%${name}%' 
+			</if>
+			order by dormitory.name  desc
+			<!-- order by dormitory.dormitoryId,floor.floor_num,room.room_id -->
+			<if test="offset != null and pageSize != null">
+				limit #{offset},#{pageSize}
+			</if>
+		</where>
+	</select>
+	<!-- 菜单信息模糊分页搜索查询总记录数 -->
+	<select id="getTotal" parameterType="Map" resultType="Integer">
+		select count(*) from dormitory 
+		<where>
+		<if test="name != null">
+			and name like '%${name}%' 
+		</if>
+		</where>
+	</select>
+	
+</mapper>

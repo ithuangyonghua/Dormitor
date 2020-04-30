@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ischoolbar.programmer.dao.admin.RegistrationDao">
+	<resultMap type="com.ischoolbar.programmer.entity.admin.RegistrationVO"
+		id="RegistAndAss">
+		<id column="rid" property="rid" jdbcType="INTEGER" />
+		<result column="teaid" property="teaid" jdbcType="VARCHAR" />
+		<result column="assetid" property="assetid" jdbcType="INTEGER" />
+		<result column="rstatus" property="rstatus" jdbcType="INTEGER" />
+		<result column="rcreatetime" property="rcreatetime" jdbcType="DATE" />
+		<result column="assetname" property="assetname" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="findList" parameterType="Map" resultMap="RegistAndAss">
+		<!-- select * from registration left join teacher on registration.teaid =
+		teacher.id
+		left join dormitory on teacher.id= dormitory.teacherId left
+		join asset
+		on dormitory.dormitoryId = asset.bedchamberid -->
+		select  * from registration left join asset on registration.assetid =  asset.assetid  left join teacher on registration.teaid =
+		teacher.id left join dormitory on teacher.id= dormitory.teacherId
+		<where>
+			<if test="name != null">
+				and name like '%${name}%'
+			</if>
+			<if test="username!=null">
+				and username like '%${username}%'
+			</if>
+			<if test="teaid != null">
+				and teaid = ${teaid}
+			</if>
+			
+			<if test="true">
+				<!-- and asset.assetname is not null -->
+				and asset.registrationstatus <![CDATA[ >= ]]> 0
+			</if>
+		</where>
+		<if test="offset != null and pageSize != null">
+			limit #{offset},#{pageSize}
+		</if>
+	</select>
+	<!-- 获取符合结果的总记录数 -->
+	<select id="getTotal" parameterType="Map" resultType="Integer">
+		select count(*)
+		from registration 
+	</select>
+
+	<insert id="insertSelective"
+		parameterType="com.ischoolbar.programmer.entity.admin.RegistrationEntity">
+		insert into registration(rid,teaid,assetid,rstatus,rcreatetime)
+		values(null,#{teaid},#{assetid},#{rstatus},#{rcreatetime})
+	</insert>
+	<update id="updateByExampleSelective"
+		parameterType="com.ischoolbar.programmer.entity.admin.RegistrationEntity">
+		
+		update registration set rstatus=#{rstatus},rcreatetime = #{rcreatetime} where rid = #{rid}
+	</update>
+	<delete id="delete" parameterType="String">
+		delete from registration where
+		rid in (${value})
+	</delete>
+</mapper>
